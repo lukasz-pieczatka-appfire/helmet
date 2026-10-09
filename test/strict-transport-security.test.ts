@@ -62,6 +62,36 @@ describe("Strict-Transport-Security middleware", () => {
     });
   });
 
+  it("allows preload when includeSubDomains is left undefined or true", async () => {
+    await check(
+      strictTransportSecurity({ preload: true, includeSubDomains: undefined }),
+      {
+        "strict-transport-security":
+          "max-age=15552000; includeSubDomains; preload",
+      }
+    );
+    await check(
+      strictTransportSecurity({
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+      }),
+      {
+        "strict-transport-security":
+          "max-age=31536000; includeSubDomains; preload",
+      }
+    );
+  });
+
+  it("allows includeSubDomains: false when preload is false", async () => {
+    await check(
+      strictTransportSecurity({ includeSubDomains: false, preload: false }),
+      {
+        "strict-transport-security": "max-age=15552000",
+      }
+    );
+  });
+
   it("throws an error with invalid parameters", () => {
     expect(() => strictTransportSecurity({ maxAge: -123 })).toThrow();
     expect(() =>
