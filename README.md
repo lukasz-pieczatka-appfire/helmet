@@ -454,7 +454,7 @@ Strict-Transport-Security: max-age=15552000; includeSubDomains
 
 `options.includeSubDomains` is a boolean which dictates whether to include the `includeSubDomains` directive, which makes this policy extend to subdomains. It defaults to `true`.
 
-`options.preload` is a boolean. If true, it adds the `preload` directive, expressing intent to add your HSTS policy to browsers. See [the "Preloading Strict Transport Security" section on MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security#Preloading_Strict_Transport_Security) for more. It defaults to `false`.
+`options.preload` is a boolean. If true, it adds the `preload` directive, expressing intent to add your HSTS policy to browsers. See [the "Preloading Strict Transport Security" section on MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security#Preloading_Strict_Transport_Security) for more. It defaults to `false`. Combining `preload: true` with `includeSubDomains: false` throws an error, because the preload list requires the `includeSubDomains` directive.
 
 Examples:
 

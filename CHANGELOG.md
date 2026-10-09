@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Breaking:** `helmet.hsts`: throw an error when `preload: true` is combined with `includeSubDomains: false`, because the HSTS preload list requires the `includeSubDomains` directive
+
 ## 5.1.1 - 2022-07-23
 
 ### Changed

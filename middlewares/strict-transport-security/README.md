@@ -40,6 +40,8 @@ app.use(
 );
 ```
 
+Combining `preload: true` with `includeSubDomains: false` throws an error, because the preload list requires the `includeSubDomains` directive.
+
 [The header is ignored in insecure HTTP](https://tools.ietf.org/html/rfc6797#section-8.1), so it's safe to set in development.
 
 This header is [somewhat well-supported by browsers](https://caniuse.com/#feat=stricttransportsecurity).

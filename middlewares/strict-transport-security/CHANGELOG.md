@@ -6,6 +6,10 @@
 
 - TypeScript type definitions. See [#25](https://github.com/helmetjs/hsts/pull/25)
 
+### Changed
+
+- Throw an error when `preload: true` is combined with `includeSubDomains: false`, because the HSTS preload list requires the `includeSubDomains` directive
+
 ### Removed
 
 - Dropped support for `includeSubdomains` with a lowercase D. See [#231](https://github.com/helmetjs/helmet/issues/231)

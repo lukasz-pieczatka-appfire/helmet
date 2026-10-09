@@ -62,6 +62,36 @@ describe("Strict-Transport-Security middleware", () => {
     });
   });
 
+  it("allows preload when includeSubDomains is left undefined or true", async () => {
+    await check(
+      strictTransportSecurity({ preload: true, includeSubDomains: undefined }),
+      {
+        "strict-transport-security":
+          "max-age=15552000; includeSubDomains; preload",
+      }
+    );
+    await check(
+      strictTransportSecurity({
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+      }),
+      {
+        "strict-transport-security":
+          "max-age=31536000; includeSubDomains; preload",
+      }
+    );
+  });
+
+  it("allows includeSubDomains: false when preload is false", async () => {
+    await check(
+      strictTransportSecurity({ includeSubDomains: false, preload: false }),
+      {
+        "strict-transport-security": "max-age=15552000",
+      }
+    );
+  });
+
   it("throws an error with invalid parameters", () => {
     expect(() => strictTransportSecurity({ maxAge: -123 })).toThrow();
     expect(() =>
@@ -84,6 +114,36 @@ describe("Strict-Transport-Security middleware", () => {
 
     expect(() => strictTransportSecurity({ maxage: false } as any)).toThrow();
     expect(() => strictTransportSecurity({ maxage: 1234 } as any)).toThrow();
+  });
+
+  it("throws when preload is enabled but includeSubDomains is disabled", () => {
+    const expectedError = new Error(
+      "Strict-Transport-Security: `preload` cannot be used with `includeSubDomains: false`. The HSTS preload list requires the `includeSubDomains` directive. Remove `preload` or set `includeSubDomains` to `true`."
+    );
+
+    expect(() =>
+      strictTransportSecurity({ preload: true, includeSubDomains: false })
+    ).toThrow(expectedError);
+    expect(() =>
+      strictTransportSecurity({
+        maxAge: 31536000,
+        includeSubDomains: false,
+        preload: true,
+      })
+    ).toThrow(expectedError);
+  });
+
+  it("throws when preload is enabled but includeSubDomains is an invalid falsy value", () => {
+    const expectedError = new Error(
+      "Strict-Transport-Security: `preload` cannot be used with `includeSubDomains: false`. The HSTS preload list requires the `includeSubDomains` directive. Remove `preload` or set `includeSubDomains` to `true`."
+    );
+
+    expect(() =>
+      strictTransportSecurity({ preload: true, includeSubDomains: null as any })
+    ).toThrow(expectedError);
+    expect(() =>
+      strictTransportSecurity({ preload: true, includeSubDomains: 0 as any })
+    ).toThrow(expectedError);
   });
 
   // This functionality only exists to ease the transition to this major version.
