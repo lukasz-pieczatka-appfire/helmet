@@ -28,6 +28,15 @@ function getHeaderValueFromOptions(
       "Strict-Transport-Security received an unsupported property, `maxage`. Did you mean to pass `maxAge`?"
     );
   }
+  if (
+    options.preload &&
+    options.includeSubDomains !== undefined &&
+    !options.includeSubDomains
+  ) {
+    throw new Error(
+      "Strict-Transport-Security: `preload` cannot be used with `includeSubDomains: false`. The HSTS preload list requires the `includeSubDomains` directive. Remove `preload` or set `includeSubDomains` to `true`."
+    );
+  }
   if ("includeSubdomains" in options) {
     console.warn(
       'Strict-Transport-Security middleware should use `includeSubDomains` instead of `includeSubdomains`. (The correct one has an uppercase "D".)'
