@@ -86,6 +86,36 @@ describe("Strict-Transport-Security middleware", () => {
     expect(() => strictTransportSecurity({ maxage: 1234 } as any)).toThrow();
   });
 
+  it("throws when preload is enabled but includeSubDomains is disabled", () => {
+    const expectedError = new Error(
+      "Strict-Transport-Security: `preload` cannot be used with `includeSubDomains: false`. The HSTS preload list requires the `includeSubDomains` directive. Remove `preload` or set `includeSubDomains` to `true`."
+    );
+
+    expect(() =>
+      strictTransportSecurity({ preload: true, includeSubDomains: false })
+    ).toThrow(expectedError);
+    expect(() =>
+      strictTransportSecurity({
+        maxAge: 31536000,
+        includeSubDomains: false,
+        preload: true,
+      })
+    ).toThrow(expectedError);
+  });
+
+  it("throws when preload is enabled but includeSubDomains is an invalid falsy value", () => {
+    const expectedError = new Error(
+      "Strict-Transport-Security: `preload` cannot be used with `includeSubDomains: false`. The HSTS preload list requires the `includeSubDomains` directive. Remove `preload` or set `includeSubDomains` to `true`."
+    );
+
+    expect(() =>
+      strictTransportSecurity({ preload: true, includeSubDomains: null as any })
+    ).toThrow(expectedError);
+    expect(() =>
+      strictTransportSecurity({ preload: true, includeSubDomains: 0 as any })
+    ).toThrow(expectedError);
+  });
+
   // This functionality only exists to ease the transition to this major version.
   // It's safe to remove these warnings (and therefore these tests) without a
   // breaking change.
