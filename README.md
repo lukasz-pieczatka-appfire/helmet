@@ -440,6 +440,40 @@ You can install this module separately as `referrer-policy`.
 </details>
 
 <details>
+<summary><code>helmet.reportingEndpoints(options)</code></summary>
+
+`helmet.reportingEndpoints` sets the `Reporting-Endpoints` header, which maps names to the URLs where browsers should send reports. It is **not** part of `helmet()`, because endpoint URLs are specific to your deployment. You must opt in by using it explicitly.
+
+`options.endpoints` is a required, non-empty object that maps endpoint names to URLs. Each URL must be an absolute HTTPS URL. Names must be lowercase and match `^[a-z*][a-z0-9_\-.*]*$`. Entries appear in the header in the order you declared them. Invalid options throw when the middleware is created.
+
+```js
+// Sets "Reporting-Endpoints: csp-endpoint="https://example.com/csp-reports""
+app.use(
+  helmet.reportingEndpoints({
+    endpoints: { "csp-endpoint": "https://example.com/csp-reports" },
+  })
+);
+```
+
+It pairs with the `report-to` directive of `Content-Security-Policy`:
+
+```js
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        reportTo: "csp-endpoint",
+      },
+    },
+  })
+);
+```
+
+You can install this module separately as `reporting-endpoints`.
+
+</details>
+
+<details>
 <summary><code>helmet.hsts(options)</code></summary>
 
 Default:
