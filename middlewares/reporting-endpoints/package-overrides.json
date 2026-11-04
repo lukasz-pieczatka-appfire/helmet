@@ -1,0 +1,16 @@
+{
+  "name": "reporting-endpoints",
+  "author": "Evan Hahn <me@evanhahn.com> (https://evanhahn.com)",
+  "contributors": [],
+  "description": "Middleware to set the Reporting-Endpoints HTTP header",
+  "version": "1.0.0",
+  "keywords": [
+    "express",
+    "security",
+    "reporting",
+    "reporting-api",
+    "reporting-endpoints",
+    "report-to",
+    "csp"
+  ]
+}

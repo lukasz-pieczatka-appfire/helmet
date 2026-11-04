@@ -11,6 +11,7 @@ import crossOriginOpenerPolicy from "../middlewares/cross-origin-opener-policy";
 import crossOriginResourcePolicy from "../middlewares/cross-origin-resource-policy";
 import expectCt from "../middlewares/expect-ct";
 import referrerPolicy from "../middlewares/referrer-policy";
+import reportingEndpoints from "../middlewares/reporting-endpoints";
 import originAgentCluster from "../middlewares/origin-agent-cluster";
 import strictTransportSecurity from "../middlewares/strict-transport-security";
 import xContentTypeOptions from "../middlewares/x-content-type-options";
@@ -37,6 +38,7 @@ describe("helmet", () => {
       "expect-ct": "max-age=0",
       "origin-agent-cluster": "?1",
       "referrer-policy": "no-referrer",
+      "reporting-endpoints": null,
       "strict-transport-security": "max-age=15552000; includeSubDomains",
       "x-content-type-options": "nosniff",
       "x-dns-prefetch-control": "off",
@@ -82,6 +84,16 @@ describe("helmet", () => {
         "content-security-policy": null,
         "x-frame-options": null,
       }
+    );
+  });
+
+  it("does not accept reportingEndpoints as a helmet() option", async () => {
+    await check(
+      topLevel({
+        // @ts-expect-error reportingEndpoints is not a helmet() option
+        reportingEndpoints: { endpoints: { a: "https://a.example/r" } },
+      }),
+      { "reporting-endpoints": null }
     );
   });
 
@@ -344,6 +356,12 @@ describe("helmet", () => {
     it("aliases the Referrer-Policy middleware to helmet.referrerPolicy", () => {
       expect(helmet.referrerPolicy.name).toBe(referrerPolicy.name);
       expect(helmet.referrerPolicy.name).toBe("referrerPolicy");
+    });
+
+    it("exposes the Reporting-Endpoints middleware as helmet.reportingEndpoints", () => {
+      expect(helmet.reportingEndpoints).toBe(reportingEndpoints);
+      expect(helmet.default.reportingEndpoints).toBe(reportingEndpoints);
+      expect(helmet.reportingEndpoints.name).toBe("reportingEndpoints");
     });
 
     it("aliases the Origin-Agent-Cluster middleware to helmet.originAgentCluster", () => {

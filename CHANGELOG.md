@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `helmet.reportingEndpoints`: new opt-in middleware that sets the `Reporting-Endpoints` header. It is not part of the default `helmet()` bundle
+
 ## 5.1.1 - 2022-07-23
 
 ### Changed
