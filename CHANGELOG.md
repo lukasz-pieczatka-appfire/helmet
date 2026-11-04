@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `helmet.reportingEndpoints` and a named `reportingEndpoints` export, which set the `Reporting-Endpoints` header. It is not included in `helmet()` by default
+
 ## 5.1.1 - 2022-07-23
 
 ### Changed

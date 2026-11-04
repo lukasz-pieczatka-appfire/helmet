@@ -14,6 +14,9 @@ import originAgentCluster from "./middlewares/origin-agent-cluster/index.js";
 import referrerPolicy, {
   ReferrerPolicyOptions,
 } from "./middlewares/referrer-policy/index.js";
+import reportingEndpoints, {
+  ReportingEndpointsOptions,
+} from "./middlewares/reporting-endpoints/index.js";
 import strictTransportSecurity, {
   StrictTransportSecurityOptions,
 } from "./middlewares/strict-transport-security/index.js";
@@ -78,6 +81,7 @@ interface Helmet {
   originAgentCluster: typeof originAgentCluster;
   permittedCrossDomainPolicies: typeof xPermittedCrossDomainPolicies;
   referrerPolicy: typeof referrerPolicy;
+  reportingEndpoints: typeof reportingEndpoints;
   xssFilter: typeof xXssProtection;
 }
 
@@ -267,6 +271,7 @@ const helmet: Helmet = Object.assign(
     originAgentCluster,
     permittedCrossDomainPolicies: xPermittedCrossDomainPolicies,
     referrerPolicy,
+    reportingEndpoints,
     xssFilter: xXssProtection,
   }
 );
@@ -287,6 +292,8 @@ export {
   expectCt,
   originAgentCluster,
   referrerPolicy,
+  reportingEndpoints,
+  ReportingEndpointsOptions,
   strictTransportSecurity as hsts,
   xContentTypeOptions as noSniff,
   xDnsPrefetchControl as dnsPrefetchControl,

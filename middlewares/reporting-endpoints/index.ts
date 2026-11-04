@@ -11,20 +11,22 @@ function quote(value: string): string {
   return `"${value.replace(/[\\"]/g, "\\$&")}"`;
 }
 
-function getHeaderValueFromOptions({
-  endpoints,
-}: Readonly<ReportingEndpointsOptions> = {} as ReportingEndpointsOptions): string {
+function getHeaderValueFromOptions(
+  {
+    endpoints,
+  }: Readonly<ReportingEndpointsOptions> = {} as ReportingEndpointsOptions
+): string {
   if (typeof endpoints !== "object" || endpoints === null) {
     throw new Error("Reporting-Endpoints requires an endpoints object");
   }
 
-  const names = Object.keys(endpoints);
-  if (names.length === 0) {
+  const entries = Object.entries(endpoints);
+  if (entries.length === 0) {
     throw new Error("Reporting-Endpoints received no endpoints");
   }
 
-  return names
-    .map((name) => {
+  return entries
+    .map(([name, url]) => {
       if (!NAME_PATTERN.test(name)) {
         throw new Error(
           `Reporting-Endpoints received an invalid endpoint name ${JSON.stringify(
@@ -32,8 +34,6 @@ function getHeaderValueFromOptions({
           )}`
         );
       }
-
-      const url = endpoints[name];
 
       let parsed: URL;
       try {
