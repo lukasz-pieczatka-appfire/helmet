@@ -1,0 +1,16 @@
+{
+  "name": "reporting-endpoints",
+  "description": "Middleware to set the Reporting-Endpoints HTTP header",
+  "version": "1.0.0",
+  "keywords": [
+    "express",
+    "security",
+    "reporting",
+    "reporting-api",
+    "reporting-endpoints",
+    "report-to"
+  ],
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}
