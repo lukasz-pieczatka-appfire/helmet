@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- When the `Content-Security-Policy` middleware errors at request time (for example, a directive function returns a value containing `;` or `,`), `helmet()` now still sets the other enabled headers and calls `next` with the error once
+
 ## 5.1.1 - 2022-07-23
 
 ### Changed
