@@ -235,17 +235,19 @@ const helmet: Helmet = Object.assign(
       next: (err?: unknown) => void
     ): void {
       let middlewareIndex = 0;
+      let firstError: unknown;
 
       (function internalNext(err?: unknown) {
-        if (err) {
-          next(err);
-          return;
+        if (err && !firstError) {
+          firstError = err;
         }
 
         const middlewareFunction = middlewareFunctions[middlewareIndex];
         if (middlewareFunction) {
           middlewareIndex++;
           middlewareFunction(req, res, internalNext);
+        } else if (firstError) {
+          next(firstError);
         } else {
           next();
         }
