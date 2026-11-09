@@ -202,6 +202,179 @@ describe("helmet", () => {
     });
   });
 
+  it("still sets other headers when Content-Security-Policy errors", async () => {
+    const app = connect()
+      .use(
+        topLevel({
+          contentSecurityPolicy: {
+            directives: {
+              defaultSrc: ["'self'", () => "bad;value"],
+            },
+          },
+        })
+      )
+      .use(
+        (
+          _err: Error,
+          _req: IncomingMessage,
+          res: ServerResponse,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          _next: () => void
+        ) => {
+          res.statusCode = 500;
+          res.end();
+        }
+      );
+
+    const response = await supertest(app).get("/").expect(500);
+
+    expect(response.headers).not.toHaveProperty("content-security-policy");
+    expect(response.headers).not.toHaveProperty("x-powered-by");
+
+    const expectedHeaders = {
+      "cross-origin-embedder-policy": "require-corp",
+      "cross-origin-opener-policy": "same-origin",
+      "cross-origin-resource-policy": "same-origin",
+      "expect-ct": "max-age=0",
+      "origin-agent-cluster": "?1",
+      "referrer-policy": "no-referrer",
+      "strict-transport-security": "max-age=15552000; includeSubDomains",
+      "x-content-type-options": "nosniff",
+      "x-dns-prefetch-control": "off",
+      "x-download-options": "noopen",
+      "x-frame-options": "SAMEORIGIN",
+      "x-permitted-cross-domain-policies": "none",
+      "x-xss-protection": "0",
+    };
+    for (const [name, value] of Object.entries(expectedHeaders)) {
+      expect(response.headers).toHaveProperty([name], value);
+    }
+  });
+
+  it("sets neither CSP header when a Report-Only directive errors", async () => {
+    const app = connect()
+      .use(
+        topLevel({
+          contentSecurityPolicy: {
+            reportOnly: true,
+            directives: {
+              defaultSrc: ["'self'", () => "bad;value"],
+            },
+          },
+        })
+      )
+      .use(
+        (
+          _err: Error,
+          _req: IncomingMessage,
+          res: ServerResponse,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          _next: () => void
+        ) => {
+          res.statusCode = 500;
+          res.end();
+        }
+      );
+
+    const response = await supertest(app).get("/").expect(500);
+
+    expect(response.headers).not.toHaveProperty("content-security-policy");
+    expect(response.headers).not.toHaveProperty(
+      "content-security-policy-report-only"
+    );
+    expect(response.headers).toHaveProperty("x-frame-options", "SAMEORIGIN");
+  });
+
+  it("forwards the original error to the error handler exactly once", async () => {
+    const errorHandler = jest.fn(
+      (_err: Error, _req: IncomingMessage, res: ServerResponse) => {
+        res.statusCode = 500;
+        res.end();
+      }
+    );
+    const app = connect()
+      .use(
+        topLevel({
+          contentSecurityPolicy: {
+            directives: {
+              defaultSrc: ["'self'", () => "bad;value"],
+            },
+          },
+        })
+      )
+      .use(
+        (
+          err: Error,
+          req: IncomingMessage,
+          res: ServerResponse,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          _next: () => void
+        ) => errorHandler(err, req, res)
+      );
+
+    await supertest(app).get("/").expect(500);
+
+    expect(errorHandler).toHaveBeenCalledTimes(1);
+    const [error] = errorHandler.mock.calls[0] as [Error, ...unknown[]];
+    expect(error).toBeInstanceOf(Error);
+    expect(error.message).toBe(
+      'Content-Security-Policy received an invalid directive value for "default-src"'
+    );
+  });
+
+  it("calls next with the error only after the remaining middlewares have run", () => {
+    const req = {} as IncomingMessage;
+    const setHeader = jest.fn();
+    const res = {
+      setHeader,
+      removeHeader: jest.fn(),
+    } as unknown as ServerResponse;
+    const next = jest.fn();
+
+    topLevel({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'", () => "bad;value"],
+        },
+      },
+    })(req, res, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    const error = next.mock.calls[0][0];
+    expect(error).toBeInstanceOf(Error);
+    expect(error.message).toBe(
+      'Content-Security-Policy received an invalid directive value for "default-src"'
+    );
+
+    expect(setHeader).not.toHaveBeenCalledWith(
+      "Content-Security-Policy",
+      expect.anything()
+    );
+    expect(setHeader).toHaveBeenCalledWith("X-XSS-Protection", "0");
+
+    const nextCallOrder = next.mock.invocationCallOrder[0];
+    for (const setHeaderCallOrder of setHeader.mock.invocationCallOrder) {
+      expect(nextCallOrder).toBeGreaterThan(setHeaderCallOrder);
+    }
+  });
+
+  it("sets the CSP header normally when a directive function returns a valid value", async () => {
+    await check(
+      topLevel({
+        contentSecurityPolicy: {
+          directives: {
+            defaultSrc: ["'self'", () => "example.com"],
+          },
+        },
+      }),
+      {
+        "content-security-policy":
+          "default-src 'self' example.com;base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+        "x-frame-options": "SAMEORIGIN",
+      }
+    );
+  });
+
   describe("warnings", () => {
     beforeEach(() => {
       jest.spyOn(console, "warn").mockImplementation(() => {});
