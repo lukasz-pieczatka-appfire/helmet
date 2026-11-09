@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Throw an error if `maxage` or `reportURI` is passed instead of `maxAge` or `reportUri`
+
 ## 1.0.0 - 2020-08-02
 
 ### Changed

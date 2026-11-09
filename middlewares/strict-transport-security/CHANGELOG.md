@@ -6,6 +6,10 @@
 
 - TypeScript type definitions. See [#25](https://github.com/helmetjs/hsts/pull/25)
 
+### Changed
+
+- Warnings about `includeSubdomains` and `setIf` are now logged once per process instead of every time the middleware is built
+
 ### Removed
 
 - Dropped support for `includeSubdomains` with a lowercase D. See [#231](https://github.com/helmetjs/helmet/issues/231)

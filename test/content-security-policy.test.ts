@@ -6,6 +6,7 @@ import contentSecurityPolicy, {
   getDefaultDirectives,
   dangerouslyDisableDefaultSrc,
 } from "../middlewares/content-security-policy";
+import { resetOptionGuardWarningsForTesting } from "../middlewares/option-guards";
 
 async function checkCsp({
   middlewareArgs,
@@ -530,6 +531,67 @@ describe("Content-Security-Policy middleware", () => {
     }).toThrow(
       /^Content-Security-Policy: tried to disable "script-src" as if it were default-src; simply omit the key$/
     );
+  });
+
+  describe("warnings for legacy usage", () => {
+    beforeEach(() => {
+      resetOptionGuardWarningsForTesting();
+      jest.spyOn(console, "warn").mockImplementation(() => {});
+    });
+
+    it("logs a warning when using the `browserSniff` parameter", () => {
+      contentSecurityPolicy({ browserSniff: false } as any);
+
+      expect(console.warn).toHaveBeenCalledTimes(1);
+      expect(console.warn).toHaveBeenCalledWith(
+        "Content-Security-Policy middleware no longer supports the `browserSniff` parameter."
+      );
+    });
+
+    it("logs a warning when using the `setAllHeaders` parameter", () => {
+      contentSecurityPolicy({ setAllHeaders: true } as any);
+
+      expect(console.warn).toHaveBeenCalledTimes(1);
+      expect(console.warn).toHaveBeenCalledWith(
+        "Content-Security-Policy middleware no longer supports the `setAllHeaders` parameter. See <https://github.com/helmetjs/helmet/wiki/Setting-legacy-Content-Security-Policy-headers-in-Helmet-4> if you need help replicating this behavior."
+      );
+    });
+
+    it("logs a warning when using the `loose` parameter", () => {
+      contentSecurityPolicy({ loose: true } as any);
+
+      expect(console.warn).toHaveBeenCalledTimes(1);
+      expect(console.warn).toHaveBeenCalledWith(
+        "Content-Security-Policy middleware no longer supports the `loose` parameter."
+      );
+    });
+
+    it("logs a warning when using the `disableAndroid` parameter", () => {
+      contentSecurityPolicy({ disableAndroid: true } as any);
+
+      expect(console.warn).toHaveBeenCalledTimes(1);
+      expect(console.warn).toHaveBeenCalledWith(
+        "Content-Security-Policy middleware no longer supports the `disableAndroid` parameter."
+      );
+    });
+
+    it("only warns once when building the middleware twice, and still sets the default policy", async () => {
+      contentSecurityPolicy({ browserSniff: false } as any);
+      const middleware = contentSecurityPolicy({ browserSniff: false } as any);
+
+      expect(console.warn).toHaveBeenCalledTimes(1);
+
+      await check(middleware, {
+        "content-security-policy":
+          "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+      });
+    });
+
+    it("does not warn for valid options", () => {
+      contentSecurityPolicy({ useDefaults: true });
+
+      expect(console.warn).not.toHaveBeenCalled();
+    });
   });
 });
 

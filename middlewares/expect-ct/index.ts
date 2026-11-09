@@ -1,4 +1,20 @@
 import { IncomingMessage, ServerResponse } from "http";
+import { guardOptions, OptionGuard } from "../option-guards.js";
+
+const OPTION_GUARDS: readonly OptionGuard[] = [
+  {
+    key: "maxage",
+    level: "throw",
+    message:
+      "Expect-CT received an unsupported property, `maxage`. Did you mean to pass `maxAge`?",
+  },
+  {
+    key: "reportURI",
+    level: "throw",
+    message:
+      "Expect-CT received an unsupported property, `reportURI`. Did you mean to pass `reportUri`?",
+  },
+];
 
 export interface ExpectCtOptions {
   maxAge?: number;
@@ -19,6 +35,8 @@ function parseMaxAge(value: number = 0): number {
 }
 
 function getHeaderValueFromOptions(options: Readonly<ExpectCtOptions>): string {
+  guardOptions(options, OPTION_GUARDS);
+
   const directives: string[] = [`max-age=${parseMaxAge(options.maxAge)}`];
 
   if (options.enforce) {

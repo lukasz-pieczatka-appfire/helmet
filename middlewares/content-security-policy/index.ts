@@ -1,4 +1,32 @@
 import { IncomingMessage, ServerResponse } from "http";
+import { guardOptions, OptionGuard } from "../option-guards.js";
+
+const OPTION_GUARDS: readonly OptionGuard[] = [
+  {
+    key: "browserSniff",
+    level: "warn",
+    message:
+      "Content-Security-Policy middleware no longer supports the `browserSniff` parameter.",
+  },
+  {
+    key: "setAllHeaders",
+    level: "warn",
+    message:
+      "Content-Security-Policy middleware no longer supports the `setAllHeaders` parameter. See <https://github.com/helmetjs/helmet/wiki/Setting-legacy-Content-Security-Policy-headers-in-Helmet-4> if you need help replicating this behavior.",
+  },
+  {
+    key: "loose",
+    level: "warn",
+    message:
+      "Content-Security-Policy middleware no longer supports the `loose` parameter.",
+  },
+  {
+    key: "disableAndroid",
+    level: "warn",
+    message:
+      "Content-Security-Policy middleware no longer supports the `disableAndroid` parameter.",
+  },
+];
 
 interface ContentSecurityPolicyDirectiveValueFunction {
   (req: IncomingMessage, res: ServerResponse): string;
@@ -218,6 +246,8 @@ const contentSecurityPolicy: ContentSecurityPolicy =
     res: ServerResponse,
     next: (err?: Error) => void
   ) => void {
+    guardOptions(options, OPTION_GUARDS);
+
     const headerName = options.reportOnly
       ? "Content-Security-Policy-Report-Only"
       : "Content-Security-Policy";

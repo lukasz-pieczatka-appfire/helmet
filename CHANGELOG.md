@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `Content-Security-Policy`: log a warning if the removed `browserSniff`, `setAllHeaders`, `loose`, or `disableAndroid` options are passed
+- `helmet.hidePoweredBy`: log a warning if the removed `setTo` option is passed
+
+### Changed
+
+- `Expect-CT`: throw an error if `maxage` or `reportURI` is passed instead of `maxAge` or `reportUri`
+- Warnings about removed or miscased options are now logged once per process instead of every time a middleware is built
+
 ## 5.1.1 - 2022-07-23
 
 ### Changed

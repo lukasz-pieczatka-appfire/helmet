@@ -2,6 +2,10 @@
 
 ## 2.0.0 - Unreleased
 
+### Added
+
+- Log a warning (once per process) if the removed `setTo` option is passed
+
 ### Removed
 
 - Removed `setTo` option. See [this article](https://github.com/helmetjs/helmet/wiki/How-to-set-a-custom-X%E2%80%93Powered%E2%80%93By-header) to see how to replicate the removed behavior. See [#224](https://github.com/helmetjs/helmet/issues/224).

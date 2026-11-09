@@ -1,6 +1,28 @@
 import { IncomingMessage, ServerResponse } from "http";
+import { guardOptions, OptionGuard } from "../option-guards.js";
 
 const DEFAULT_MAX_AGE = 180 * 24 * 60 * 60;
+
+const OPTION_GUARDS: readonly OptionGuard[] = [
+  {
+    key: "maxage",
+    level: "throw",
+    message:
+      "Strict-Transport-Security received an unsupported property, `maxage`. Did you mean to pass `maxAge`?",
+  },
+  {
+    key: "includeSubdomains",
+    level: "warn",
+    message:
+      'Strict-Transport-Security middleware should use `includeSubDomains` instead of `includeSubdomains`. (The correct one has an uppercase "D".)',
+  },
+  {
+    key: "setIf",
+    level: "warn",
+    message:
+      "Strict-Transport-Security middleware no longer supports the `setIf` parameter. See the documentation and <https://github.com/helmetjs/helmet/wiki/Conditionally-using-middleware> if you need help replicating this behavior.",
+  },
+];
 
 export interface StrictTransportSecurityOptions {
   maxAge?: number;
@@ -23,21 +45,7 @@ function parseMaxAge(value: number = DEFAULT_MAX_AGE): number {
 function getHeaderValueFromOptions(
   options: Readonly<StrictTransportSecurityOptions>
 ): string {
-  if ("maxage" in options) {
-    throw new Error(
-      "Strict-Transport-Security received an unsupported property, `maxage`. Did you mean to pass `maxAge`?"
-    );
-  }
-  if ("includeSubdomains" in options) {
-    console.warn(
-      'Strict-Transport-Security middleware should use `includeSubDomains` instead of `includeSubdomains`. (The correct one has an uppercase "D".)'
-    );
-  }
-  if ("setIf" in options) {
-    console.warn(
-      "Strict-Transport-Security middleware no longer supports the `setIf` parameter. See the documentation and <https://github.com/helmetjs/helmet/wiki/Conditionally-using-middleware> if you need help replicating this behavior."
-    );
-  }
+  guardOptions(options, OPTION_GUARDS);
 
   const directives: string[] = [`max-age=${parseMaxAge(options.maxAge)}`];
 
