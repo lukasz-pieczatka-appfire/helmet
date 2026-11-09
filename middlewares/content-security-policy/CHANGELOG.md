@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Log a warning (once per process) if the removed `browserSniff`, `setAllHeaders`, `loose`, or `disableAndroid` options are passed
+
 ### Changed
 
 - **Breaking:** `useDefaults` option now defaults to `true`

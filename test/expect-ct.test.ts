@@ -44,6 +44,24 @@ describe("Expect-CT middleware", () => {
     expect(() => expectCt({ maxAge: BigInt(12) as any })).toThrow();
   });
 
+  it("throws when passed the miscased `maxage` option", () => {
+    expect(() => expectCt({ maxage: 123 } as any)).toThrow(
+      new Error(
+        "Expect-CT received an unsupported property, `maxage`. Did you mean to pass `maxAge`?"
+      )
+    );
+  });
+
+  it("throws when passed the miscased `reportURI` option", () => {
+    expect(() =>
+      expectCt({ reportURI: "https://example.com/report" } as any)
+    ).toThrow(
+      new Error(
+        "Expect-CT received an unsupported property, `reportURI`. Did you mean to pass `reportUri`?"
+      )
+    );
+  });
+
   it("can enable enforcement", async () => {
     await check(expectCt({ enforce: true }), {
       "expect-ct": "max-age=0, enforce",
